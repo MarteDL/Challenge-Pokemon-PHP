@@ -83,7 +83,6 @@ error_reporting(E_ALL);
                 </li>
                 <div class="right-container">
                     <li id="all-evolutions">
-                        <div id="evolution-images">
                     ';
 
 
@@ -155,7 +154,7 @@ error_reporting(E_ALL);
                         echo '</div>';
                     }
                 }
-                echo '</div>
+                echo '
                     </li>
                 </div>';
                 ?>
