@@ -7,7 +7,7 @@ async function getPokemon(input) {
 }
 
 document.addEventListener("DOMContentLoaded", function (event) {
-    document.getElementById('pokemon-id').addEventListener('keyup', async () => {
+    document.getElementById('pokemon-id').addEventListener('click', async () => {
 
         let target = document.getElementById("tpl-pokemon");
         let input = document.getElementById("pokemon-id").value;
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
             if (evolutionChain.chain.evolves_to.length === 1 && evolutionChain.chain.evolves_to[0].evolves_to.length === 0) {
                 await displayEvolutionPicture(evolution0, "evolution0");
                 await displayEvolutionPicture(evolution1, "evolution1");
-
+67
                 document.getElementById("evolution2").classList.add("hidden");
                 document.getElementById("evolution3").classList.add("hidden");
             }

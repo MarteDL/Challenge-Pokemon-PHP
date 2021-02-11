@@ -66,6 +66,15 @@ h4 {
 	padding: 12px 12px 12px 40px;
 }
 
+.button {
+	box-sizing: border-box;
+	border-radius: 5px;
+	position: relative;
+	text-align: center;
+	background-color: white;
+	padding: 12px;
+}
+
 #all-evolutions {
 	display: flex;
 	flex-direction: column;
@@ -126,8 +135,9 @@ h4 {
 }
 
 .search-wrapper {
-	display: block;
+	display: flex;
 	margin: 0 auto;
+	flex-direction: row;
 }
 
 #get-moves {
