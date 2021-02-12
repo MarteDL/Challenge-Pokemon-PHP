@@ -166,14 +166,14 @@ h4 {
     font-size: 1.5rem;
 }
 
-#evolution-images div img {
+#evolution-images a img {
     -webkit-transform: scale(1);
     transform: scale(1);
     -webkit-transition: .3s ease-in-out;
     transition: .3s ease-in-out;
 }
 
-#evolution-images div:hover img {
+#evolution-images a:hover img {
     cursor: pointer;
     -webkit-transform: scale(1.3);
     transform: scale(1.3);

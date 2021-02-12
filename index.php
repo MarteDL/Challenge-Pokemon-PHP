@@ -35,29 +35,14 @@ if (isset($_GET['find-pokemon'])) {
             echo '<p>' . $move['move']['name'] . '</p>';
         }
 
-        echo '</div> </h4>';
+        echo '</div>';
 
     }
 
     function findEvolutionsAndDisplayThem(array $pokemon)
     {
-        function getSpecies(array $pokemon): array
-        {
-            $speciesUrl = $pokemon['species']['url'];
-            $speciesObject = file_get_contents($speciesUrl);
-            return json_decode($speciesObject, true);
-        }
-
-
-        function getEvolutionChain(array $species): array
-        {
-            $evolutionChainUrl = $species['evolution_chain']['url'];
-            $evolutionChainObject = file_get_contents($evolutionChainUrl);
-            return json_decode($evolutionChainObject, true);
-        }
-
-        $species = getSpecies($pokemon);
-        $evolutionChain = getEvolutionChain($species);
+        $species = json_decode(file_get_contents($pokemon['species']['url']), true);
+        $evolutionChain = json_decode(file_get_contents($species['evolution_chain']['url']), true);
 
         $elementsInArray1 = count($evolutionChain['chain']['evolves_to']);
         $elementsInArray2 = count($evolutionChain['chain']['evolves_to'][0]['evolves_to']);
@@ -69,13 +54,10 @@ if (isset($_GET['find-pokemon'])) {
         {
             $pokemonToDisplay = getPokemon($evolutionName);
             $src = $pokemonToDisplay['sprites']['front_default'];
-            echo '
-                        <div id='.$evolutionName.'>
-                            <img src="' . $src . '" alt="evolution">
-                        </div>
-                        ';
+            echo '<a href="http://pokemon.local/Challenge-Pokemon-PHP/index.php?pokemon-id='.$evolutionName.'&find-pokemon=GO%21" id='.$evolutionName.'>
+                    <img src="' . $src . '" alt="evolution">
+                  </a>';
         }
-
 
         if ($elementsInArray1 === 1 && $elementsInArray2 === 0) {
 
@@ -85,10 +67,11 @@ if (isset($_GET['find-pokemon'])) {
             displayEvolutionPicture($evolution0);
             displayEvolutionPicture($evolution1);
 
-            echo '
-                        </div>
-                        ';
-        } else if ($elementsInArray2 === 1) {
+            echo '</div>';
+
+        }
+
+        else if ($elementsInArray2 === 1) {
 
             $evolution2 = $evolutionChain['chain']['evolves_to'][0]['evolves_to'][0]['species']['name'];
 
@@ -99,9 +82,8 @@ if (isset($_GET['find-pokemon'])) {
             displayEvolutionPicture($evolution1);
             displayEvolutionPicture($evolution2);
 
-            echo '
-                        </div>
-                        ';
+            echo '</div>';
+
         } else if ($elementsInArray1 > 1) {
 
             echo '<h4>Evolutions</h4>
@@ -113,18 +95,9 @@ if (isset($_GET['find-pokemon'])) {
                 displayEvolutionPicture($pokemonName);
             }
 
-            echo ' </div> ';
+            echo '</div>';
         }
     }
-
-//    document.getElementById("all-evolutions").querySelectorAll("img").forEach((img, index) => {
-//        img.addEventListener("click", () => {
-//            document.getElementById("pokemon-id").value = img.id;
-//            let event = document.createEvent('KeyboardEvent');
-//                event.initEvent('keyup', false, false);
-//                document.getElementById("pokemon-id").dispatchEvent(event);
-//            })
-//        })
 }
 
 ?>
