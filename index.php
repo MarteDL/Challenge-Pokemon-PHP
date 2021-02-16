@@ -6,37 +6,68 @@ error_reporting(E_ALL);
 
 if (isset($_GET['find-pokemon'])) {
 
-    function getPokemon(string $input): array
+    function getPokemon(string $input)
     {
         return json_decode(file_get_contents("https://pokeapi.co/api/v2/pokemon/" . $input), true);
     }
 
-    $input = $_GET['pokemon-id'];
-    $pokemon = getPokemon($input);
-    $pokeName = $pokemon['name'];
-    $id = $pokemon['id'];
-
     function displayPicture(array $pokemon)
     {
         $imgUrl = $pokemon['sprites']['front_default'];
-        echo '<img id=img-pokemon src="'. $imgUrl .'" alt="pokemon">';
+        echo '<img id=img-pokemon src="' . $imgUrl . '" alt="pokemon">';
     }
 
-    function echoMoves(array $pokemon)
+    function displayMoves(array $pokemon)
     {
         echo '<h4>Moves</h4>
                     <div id="get-moves">';
 
         $movesArray = $pokemon['moves'];
-        shuffle($movesArray);
-        $moves = array_slice($movesArray, 0, 4);
 
-        foreach ($moves as $move) {
-            echo '<p>' . $move['move']['name'] . '</p>';
+        if (count($movesArray) == 0) {
+            echo 'This pokemon has no moves';
+        }
+
+        else {
+            shuffle($movesArray);
+            $moves = array_slice($movesArray, 0, 4);
+
+            foreach ($moves as $move) {
+                echo '<p>' . ucfirst($move['move']['name']) . '</p>';
+            }
         }
 
         echo '</div>';
+    }
 
+    function flatten($array, $prefix = ''): array
+    {
+        $flat = array();
+        $sep = ".";
+
+        if (!is_array($array)) {
+            $array = (array)$array;
+        }
+
+        foreach ($array as $key => $value) {
+            $_key = ltrim($prefix . $sep . $key, ".");
+
+            if (is_array($value) || is_object($value)) {
+                $flat = array_merge($flat, flatten($value, $_key));
+            } else {
+                $flat[$_key] = $value;
+            }
+        }
+        return $flat;
+    }
+
+    function displayEvolutionPicture($evolutionName)
+    {
+        $pokemonToDisplay = getPokemon($evolutionName);
+        $src = $pokemonToDisplay['sprites']['front_default'];
+        echo '<a href="http://pokemon.local/Challenge-Pokemon-PHP/index.php?pokemon-id=' . $evolutionName . '&find-pokemon=GO%21" id=' . $evolutionName . ' title="'. $evolutionName.'">
+                    <img src="' . $src . '" alt="evolution">
+                  </a>';
     }
 
     function findEvolutionsAndDisplayThem(array $pokemon)
@@ -44,60 +75,40 @@ if (isset($_GET['find-pokemon'])) {
         $species = json_decode(file_get_contents($pokemon['species']['url']), true);
         $evolutionChain = json_decode(file_get_contents($species['evolution_chain']['url']), true);
 
-        $elementsInArray1 = count($evolutionChain['chain']['evolves_to']);
-        $elementsInArray2 = count($evolutionChain['chain']['evolves_to'][0]['evolves_to']);
-
-        $evolution0 = $evolutionChain['chain']['species']['name'];
-        $evolution1 = $evolutionChain['chain']['evolves_to'][0]['species']['name'];
-
-        function displayEvolutionPicture($evolutionName)
-        {
-            $pokemonToDisplay = getPokemon($evolutionName);
-            $src = $pokemonToDisplay['sprites']['front_default'];
-            echo '<a href="http://pokemon.local/Challenge-Pokemon-PHP/index.php?pokemon-id='.$evolutionName.'&find-pokemon=GO%21" id='.$evolutionName.'>
-                    <img src="' . $src . '" alt="evolution">
-                  </a>';
-        }
-
-        if ($elementsInArray1 === 1 && $elementsInArray2 === 0) {
+        if (count($evolutionChain['chain']['evolves_to']) >= 1) {
 
             echo '<h4>Evolutions</h4>
                         <div id="evolution-images">';
 
-            displayEvolutionPicture($evolution0);
-            displayEvolutionPicture($evolution1);
+            $flattenedChain = flatten($evolutionChain, $prefix = ' ');
+            $filteredChain = array_filter($flattenedChain, function($v, $k){
+                if (str_contains($k, 'species.name') && !str_contains($k, 'trade')){
+                    return $v;
+                }
+            }, ARRAY_FILTER_USE_BOTH);
 
-            echo '</div>';
+            $reversedArray = array_reverse($filteredChain);
 
-        }
+            foreach ($reversedArray as $arrayItem) {
+                if (is_string($arrayItem) && ($arrayItem != "")) {
 
-        else if ($elementsInArray2 === 1) {
+                    $pokemonObject = getPokemon($arrayItem);
 
-            $evolution2 = $evolutionChain['chain']['evolves_to'][0]['evolves_to'][0]['species']['name'];
-
-            echo '<h4>Evolutions</h4>
-                        <div id="evolution-images">';
-
-            displayEvolutionPicture($evolution0);
-            displayEvolutionPicture($evolution1);
-            displayEvolutionPicture($evolution2);
-
-            echo '</div>';
-
-        } else if ($elementsInArray1 > 1) {
-
-            echo '<h4>Evolutions</h4>
-                        <div id="evolution-images">';
-
-            $evolutions = $evolutionChain['chain']['evolves_to'];
-            foreach ($evolutions as $evolution) {
-                $pokemonName = $evolution['species']['name'];
-                displayEvolutionPicture($pokemonName);
+                    if($pokemonObject != null) {
+                        $pokemonName = $pokemonObject['species']['name'];
+                        displayEvolutionPicture($pokemonName);
+                    }
+                }
             }
-
             echo '</div>';
         }
     }
+
+    $input = $_GET['pokemon-id'];
+    $pokemon = getPokemon($input);
+    $pokeName = $pokemon['name'];
+    $id = $pokemon['id'];
+
 }
 
 ?>
@@ -138,7 +149,7 @@ if (isset($_GET['find-pokemon'])) {
                             <?php echo $id ?>
                         </em>
                         <strong class="name">
-                            <?php echo $pokeName ?>
+                            <?php echo ucfirst($pokeName) ?>
                         </strong>
                     </h4>
                     <?php
@@ -147,7 +158,7 @@ if (isset($_GET['find-pokemon'])) {
                 </li>
                 <li id="moves">
                     <?php
-                    echoMoves($pokemon);
+                    displayMoves($pokemon);
                     ?>
                 </li>
                 <div class="right-container">

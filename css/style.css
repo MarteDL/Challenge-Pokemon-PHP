@@ -106,13 +106,13 @@ h4 {
 
 #img-pokemon {
     background: none;
-    width: 15vw;
+    display: block;
+    justify-content: center;
+    margin: auto;
+    width: 10vw;
     height: auto;
-    justify-content: flex-start;
     border: 5px solid;
-    border-radius: 100px;
     border-image: linear-gradient(0deg, rgba(255, 147, 0, 1) 0%, rgba(255, 202, 0, 1)) 1;
-    margin: 10px;
     -webkit-transform: scale(1);
     transform: scale(1);
     -webkit-transition: .3s ease-in-out;
@@ -141,15 +141,12 @@ h4 {
 
 #get-moves {
     display: grid;
+    text-align: center;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
     font-weight: bold;
     justify-content: center;
     grid-gap: 10px;
-}
-
-#get-moves p {
-    text-align: center;
 }
 
 #tpl-pokemon {
